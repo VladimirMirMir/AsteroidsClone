@@ -2,14 +2,16 @@
 
 public class ShipController : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [SerializeField] private float speed = 5f;
 
+    private AudioSource audioSource;
     private Vector3 localMouseInput;
     private float shipWidth;
     private float shipHeight;
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         //Выключаем системный курсор
         Cursor.visible = false;
         //Сохраняем размеры корабля по осям X и Y, чтобы потом проверять не вышел ли он за экран.
@@ -21,7 +23,8 @@ public class ShipController : MonoBehaviour
 
     private void Update()
     {
-        HandleInput();
+        if (!GameManager.Instance.GameIsOver)
+            HandleInput();
     }
 
     private void LateUpdate()
@@ -36,7 +39,8 @@ public class ShipController : MonoBehaviour
         HandleRotation();
         if (Input.GetMouseButtonDown(0))
         {
-            //Fire
+            GameManager.SpawnBullet();
+            audioSource.Play();
         }
     }
 
@@ -55,7 +59,7 @@ public class ShipController : MonoBehaviour
         //Помещаем изображение курсора в полученные координаты
         GameManager.Instance.CursorArt.position = new Vector2(localMouseInput.x, localMouseInput.y);
         //Поворачиваем корабль по оси Z
-        transform.GetChild(0).rotation = Quaternion.Euler(0f, 0f, GameManager.Instance.CalculateRotation(localMouseInput, transform.position));
+        transform.GetChild(0).rotation = Quaternion.Euler(0f, 0f, GameManager.CalculateRotation(localMouseInput, transform.position));
     }
 
     private void KeepShipOnScreen()

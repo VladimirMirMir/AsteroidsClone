@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class AutoDestruction : MonoBehaviour
 {
+    [Range(5f, 15f)]
+    public float Timer;
+
     void Start()
     {
         StartCoroutine(Destr());

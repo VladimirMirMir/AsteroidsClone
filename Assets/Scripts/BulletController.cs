@@ -13,8 +13,9 @@ public class BulletController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         //Убираем влияние гравитации на ось Z, т.к. мы в 2D пространстве
         rb.gravityScale = 0;
-        //
-        rb.velocity = new Vector2(1, 0);
+        //Поворачиваем в сторону курсора
+        transform.rotation = Quaternion.Euler(0f, 0f, GameManager.CalculateRotation(GameManager.Instance.CursorArt.position, transform.position));
+        rb.velocity = GameManager.NormalizedDistance(GameManager.Instance.CursorArt.position, transform.position) * GameManager.Instance.BulletSpeed;
     }
 
     //При столкновении...
@@ -25,18 +26,18 @@ public class BulletController : MonoBehaviour
         {
             //Если это был маленький астероид - уничтожить и добавить очки
             case "Asteroid":
-                GameManager.Instance.SpawnExplosion(gameObject, collision.gameObject, 10);
+                GameManager.SpawnExplosion(gameObject, collision.gameObject, 10);
                 break;
             case "MediumAsteroid":
                 //spawn 2 asteroids
-                GameManager.Instance.SpawnExplosion(gameObject, collision.gameObject, 25);
+                GameManager.SpawnExplosion(gameObject, collision.gameObject, 25);
                 break;
             case "BigAsteroid":
                 //spawn 3 medium asteroids
-                GameManager.Instance.SpawnExplosion(gameObject, collision.gameObject, 75);
+                GameManager.SpawnExplosion(gameObject, collision.gameObject, 75);
                 break;
             case "HugeAsteroid":
-                GameManager.Instance.SpawnExplosion(gameObject, collision.gameObject, 175);
+                GameManager.SpawnExplosion(gameObject, collision.gameObject, 175);
                 //spawn 4 big asteroids
                 break;
         }

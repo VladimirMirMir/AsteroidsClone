@@ -6,8 +6,10 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    //Применение паттерна Одиночка (Singletone)
     public static GameManager Instance;
 
+    //Разные настройки и важные параметры, доступ к которым необходим в других классах
     public bool GameIsOver = false;
     public int Score;
     public float AsteroidSpeed = 2f;
@@ -34,21 +36,27 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        //Это обеспечивает паттерн Одиночку.
         if (Instance == null)
             Instance = this;
+            //Если бы сцен было больше - то нужно было бы добавить DontDestroyOnLoad(this);
         else
             Destroy(gameObject);
     }
 
     private void Start()
     {
+        //Сохраняем границы экрана
         ScreenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.GetComponent<Transform>().position.z));
+        //Сохраняем координаты игрока
         PlayerTransform = GameObject.Find("Player").transform;
+        //Запускаем астероиды
         Instance.StartCoroutine(AsteroidWave());
     }
 
     private void Update()
     {
+        //Проверка на проигрыш
         if (PlayerTransform == null)
         {
             Die();
@@ -57,11 +65,14 @@ public class GameManager : MonoBehaviour
 
     public static void StartGame()
     {
+        //Запускаем игрока
         SpawnPlayer();
         if (Instance.GameIsOver)
         {
+            //Если совсем проиграли - заново грузим сцену
             SceneManager.LoadScene(0);
         }
+        //Подготавливаем игру к запуску (настройки интерфейса)
         Instance.GameIsOver = false;
         Instance.GameIsOverPanel.SetActive(false);
         Instance.GameIsOnPanel.SetActive(true);
@@ -70,6 +81,7 @@ public class GameManager : MonoBehaviour
 
     public static void GameOver()
     {
+        //Настройки интерфейса при конце игры
         Instance.GameIsOver = true;
         Instance.GameIsOverPanel.SetActive(true);
         Instance.GameIsOnPanel.SetActive(false);
@@ -80,6 +92,8 @@ public class GameManager : MonoBehaviour
 
     public static float CalculateRotation(Vector3 target, Vector3 rotateable)
     {
+        //Векторная математика - находим насколько градусов надо повернуть rotateable, чтоб он смотрел в сторону target
+        //Возвращает колличество градусов
         Vector3 difference = target - rotateable;
         float rotationZ = Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg;
         return rotationZ;
@@ -87,6 +101,7 @@ public class GameManager : MonoBehaviour
 
     public static Vector3 NormalizedDistance(Vector3 target, Vector3 rotateable)
     {
+        //Возвращает нормализованное направление до цели (длина вектора == 1)
         Vector3 local = target - rotateable;
         local.Normalize();
         return local;
@@ -94,6 +109,7 @@ public class GameManager : MonoBehaviour
 
     public static float CalculateVelocity(string tag)
     {
+        //В зависимости от размера астероида - разнится скорость
         switch (tag)
         {
             case "Asteroid":
@@ -110,20 +126,24 @@ public class GameManager : MonoBehaviour
 
     public static void SpawnExplosion(GameObject first, GameObject second, int score)
     {
+        //Запускаем взрыв и изменяем Очки, скорость и прочее.
         Instance.Score += score;
         UpdateScore(Instance.Score);
         Instance.AsteroidSpeed += 0.05f;
         Instance.RespawnTime -= 0.05f;
+        //Следим чтобы переменная не ушла ниже нуля и не превратила игру в ад из астероидов
         Instance.RespawnTime = Mathf.Clamp(Instance.RespawnTime, 1f, 2f);
         GameObject explosion = Instantiate(Instance.ExplosionPrefab) as GameObject;
         explosion.transform.localScale = new Vector3(0.4f, 0.4f, 1f);
         explosion.transform.position = first.transform.position;
+        //Удаляем столкнувшиеся объекты
         Destroy(first);
         Destroy(second);
     }
 
     public static void SpawnPlayer()
     {
+        //Спавн игрока
         GameObject local = Instantiate(Instance.PlayerPrefab, Vector3.zero, Quaternion.identity);
         Instance.PlayerTransform = local.transform;
         Instance.GunPoint = Instance.PlayerTransform.GetChild(0).GetChild(1);
@@ -131,6 +151,7 @@ public class GameManager : MonoBehaviour
 
     public static void Die()
     {
+        //Если есть сердца - играем дальше. Если нет - конец игры
         if (!Instance.Heart1.activeSelf)
         {
             if (!Instance.Heart2.activeSelf)
@@ -169,11 +190,13 @@ public class GameManager : MonoBehaviour
 
     public static void UpdateScore(int score)
     {
+        //Обновляет отображение очков
         Instance.ScoreText.text = $"Score: {score}";
     }
 
     public static IEnumerator AsteroidWave()
     {
+        //Запускает астероиды вне экрана в случайных сторонах
         while (!Instance.GameIsOver)
         {
             yield return new WaitForSeconds(Instance.RespawnTime);
@@ -202,6 +225,7 @@ public class GameManager : MonoBehaviour
 
     public static GameObject SpawnAsteroid()
     {
+        //В зависимости от текущей скорости спавнит нужный размер астероида
         if (Instance.AsteroidSpeed < 6)
         {
             GameObject local = Instantiate(Instance.AsteroidPrefabs[Random.Range(0, Instance.AsteroidPrefabs.Count)]) as GameObject;
@@ -224,8 +248,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static GameObject SpawnAsteroid(Transform localTransform)
+    {
+        //Спавн астероида в определённых координатах
+        GameObject local = Instantiate(Instance.AsteroidPrefabs[Random.Range(0, Instance.AsteroidPrefabs.Count)], localTransform.position, Quaternion.identity) as GameObject;
+        return local;
+    }
+
     public static GameObject SpawnBullet()
     {
+        //Свавн пули
         GameObject local = Instantiate(Instance.BulletPrefab, Instance.GunPoint.position, Quaternion.identity) as GameObject;
         return local;
     }

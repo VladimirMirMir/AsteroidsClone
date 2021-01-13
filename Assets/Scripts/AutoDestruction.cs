@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class AutoDestruction : MonoBehaviour
 {
-    [Range(5f, 15f)]
+    //Время на самоуничтожение
+    [Range(1f, 15f)]
     public float Timer;
 
     void Start()
@@ -13,7 +14,8 @@ public class AutoDestruction : MonoBehaviour
 
     IEnumerator Destr()
     {
-        yield return new WaitForSeconds(10f);
+        //Запускаем отложенное уничтожение
+        yield return new WaitForSeconds(Timer);
         Destroy(gameObject);
     }
 }

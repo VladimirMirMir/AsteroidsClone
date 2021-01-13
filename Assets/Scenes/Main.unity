@@ -1037,7 +1037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameIsOver: 0
   Score: 0
-  AsteroidSpeed: 4
+  AsteroidSpeed: 6.1
   BulletSpeed: 15
   RespawnTime: 2
   ScoreText: {fileID: 1283185103}

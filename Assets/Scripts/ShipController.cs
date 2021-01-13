@@ -11,6 +11,7 @@ public class ShipController : MonoBehaviour
 
     private void Start()
     {
+        //Сохраняем источник звука
         audioSource = GetComponent<AudioSource>();
         //Выключаем системный курсор
         Cursor.visible = false;
@@ -23,6 +24,7 @@ public class ShipController : MonoBehaviour
 
     private void Update()
     {
+        //Если игра не окончена, воспринимать ввод от игрока
         if (!GameManager.Instance.GameIsOver)
             HandleInput();
     }
@@ -39,6 +41,7 @@ public class ShipController : MonoBehaviour
         HandleRotation();
         if (Input.GetMouseButtonDown(0))
         {
+            //Появляется пуля и звук
             GameManager.SpawnBullet();
             audioSource.Play();
         }
